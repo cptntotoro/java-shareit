@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -12,33 +13,33 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
-    @Autowired
-    ItemService itemService;
+    private final ItemService itemService;
 
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @Valid @RequestBody ItemDto itemDto) {
-        return itemService.add(userId, itemDto);
+    public ResponseEntity<ItemDto> add(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @Valid @RequestBody ItemDto itemDto) {
+        return ResponseEntity.ok().body(itemService.add(userId, itemDto));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@PathVariable @Positive Integer itemId, @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @Valid @RequestBody ItemDto itemDto) {
-        return itemService.update(itemId, userId, itemDto);
+    public ResponseEntity<ItemDto> update(@PathVariable @Positive Integer itemId, @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @Valid @RequestBody ItemDto itemDto) {
+        return ResponseEntity.ok().body(itemService.update(itemId, userId, itemDto));
     }
 
     @GetMapping("/{id}")
-    public ItemDto get(@PathVariable @NotNull @Positive Integer id) {
-        return itemService.get(id);
+    public ResponseEntity<ItemDto> get(@PathVariable @NotNull @Positive Integer id) {
+        return ResponseEntity.ok().body(itemService.get(id));
     }
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId) {
-        return itemService.getAll(userId);
+    public ResponseEntity<List<ItemDto>> getAll(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId) {
+        return ResponseEntity.ok().body(itemService.getAll(userId));
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @RequestParam("text") String text) {
-        return itemService.search(userId, text);
+    public ResponseEntity<List<ItemDto>> search(@RequestHeader("X-Sharer-User-Id") @NotNull Integer userId, @RequestParam("text") String text) {
+        return ResponseEntity.ok().body(itemService.search(userId, text));
     }
 }

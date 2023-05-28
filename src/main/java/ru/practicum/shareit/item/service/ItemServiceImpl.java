@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -13,16 +13,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-
-    @Autowired
-    UserService userService;
-    @Autowired
-    ItemMapper itemMapper;
-    @Autowired
-    UserMapper userMapper;
-
-    private final Map<Integer, Item> items = new HashMap<>();
+    private final UserService userService;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
+    private Map<Integer, Item> items = new HashMap<>();
     private int idGenerator = 0;
 
     @Override
@@ -33,11 +29,11 @@ public class ItemServiceImpl implements ItemService {
             throw new UserDoesNotExistException("Failed to create item. User with id " + userId + " was not found.");
         }
 
-        Item item = itemMapper.itemDtoToItem(itemDto);
-        item.setOwner(userMapper.userDtoToUser(userService.get(userId)));
+        Item item = itemMapper.toItem(itemDto);
+        item.setOwner(userMapper.toUser(userService.get(userId)));
         item.setId(++idGenerator);
         items.put(item.getId(), item);
-        return itemMapper.itemToItemDto(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
@@ -67,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         items.put(item.getId(), item);
-        return itemMapper.itemToItemDto(items.get(itemId));
+        return itemMapper.toItemDto((items.get(itemId)));
     }
 
     @Override
@@ -75,13 +71,13 @@ public class ItemServiceImpl implements ItemService {
         if (!itemWithIdExists(itemId)) {
             throw new ItemDoesNotExistException("Failed to get item. Item id is not found.");
         }
-        return itemMapper.itemToItemDto(items.get(itemId));
+        return itemMapper.toItemDto(items.get(itemId));
     }
 
     @Override
     public List<ItemDto> getAll(Integer userId) {
         List<Item> userItems = items.values().stream().filter(item -> Objects.equals(item.getOwner().getId(), userId)).collect(Collectors.toList());
-        return userItems.stream().map(itemMapper::itemToItemDto).collect(Collectors.toList());
+        return userItems.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
@@ -94,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(Item::getIsAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(searchQuery)
                         || item.getDescription().toLowerCase().contains(searchQuery))
-                .map(itemMapper::itemToItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 

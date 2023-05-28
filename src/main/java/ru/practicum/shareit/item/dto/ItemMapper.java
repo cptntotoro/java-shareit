@@ -1,16 +1,18 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.item.model.Item;
 
-@Service
-public class ItemMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface ItemMapper {
+    ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
 
-    public Item itemDtoToItem(ItemDto itemDto) {
-        return new Item(itemDto.getId(), itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable());
-    }
+    @Mapping(target="available", source="item.isAvailable")
+    ItemDto toItemDto(Item item);
 
-    public ItemDto itemToItemDto(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getIsAvailable());
-    }
+    @Mapping(target="isAvailable", source="itemDto.available")
+    Item toItem(ItemDto itemDto);
 }

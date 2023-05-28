@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.UserDoesNotExistException;
 import ru.practicum.shareit.exceptions.UserEmailAlreadyExistsException;
@@ -14,21 +14,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final Map<Integer, User> users = new HashMap<>();
+    private Map<Integer, User> users = new HashMap<>();
     private int idGenerator = 0;
-    @Autowired
-    UserMapper userMapper;
+    private final UserMapper userMapper;
 
     public UserDto add(@Valid UserDto userDto) {
         validateUserDto(userDto);
         if (userWithEmailExists(userDto.getEmail())) {
             throw new UserEmailAlreadyExistsException("Failed to add user. User with email " + userDto.getEmail() + " already exists.");
         }
-        User user = userMapper.userDtoToUser(userDto);
+        User user = userMapper.toUser(userDto);
         user.setId(++idGenerator);
         users.put(user.getId(), user);
-        return userMapper.userToUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     public UserDto update(int userId, @Valid UserDto userDto) {
@@ -44,12 +44,12 @@ public class UserServiceImpl implements UserService {
         if (userDto.getName() != null) {
             users.get(userId).setName(userDto.getName());
         }
-        return userMapper.userToUserDto(users.get(userId));
+        return userMapper.toUserDto((users.get(userId)));
     }
 
     public UserDto get(int id) {
         validateUserById(id);
-        return userMapper.userToUserDto(users.get(id));
+        return userMapper.toUserDto((users.get(id)));
     }
 
     public void delete(int id) {
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserDto> getAll() {
-        return users.values().stream().map(user -> userMapper.userToUserDto(user)).collect(Collectors.toList());
+        return users.values().stream().map(userMapper::toUserDto).collect(Collectors.toList());
     }
 
     private void validateUserDto(UserDto userDto) {
