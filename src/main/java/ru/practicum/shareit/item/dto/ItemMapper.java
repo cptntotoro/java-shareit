@@ -10,9 +10,9 @@ import ru.practicum.shareit.item.model.Item;
 public interface ItemMapper {
     ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
 
-    @Mapping(target="available", source="item.isAvailable")
+    @Mapping(target = "available", source = "item.isAvailable")
     ItemDto toItemDto(Item item);
 
-    @Mapping(target="isAvailable", source="itemDto.available")
+    @Mapping(target = "isAvailable", source = "itemDto.available")
     Item toItem(ItemDto itemDto);
 }
