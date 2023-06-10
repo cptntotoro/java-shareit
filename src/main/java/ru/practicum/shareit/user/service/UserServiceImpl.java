@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.UserEmailAlreadyExistsException;
@@ -20,8 +19,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserDto add(@Valid UserDto userDto) {
         validateUserDto(userDto);

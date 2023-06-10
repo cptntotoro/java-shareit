@@ -14,9 +14,7 @@ import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,10 +27,8 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
-    private final UserService userService;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final UserMapper userMapper;
 
     @Override
     public BookingDtoOutput add(Integer bookerId, BookingDtoInput bookingDtoInput) {
@@ -54,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = bookingMapper.toBooking(bookingDtoInput);
-        booking.setBooker(userMapper.toUser(userService.get(bookerId)));
+        booking.setBooker(userRepository.findById(bookerId).get());
         booking.setStatus(BookingStatus.WAITING);
         booking.setItem(item);
 

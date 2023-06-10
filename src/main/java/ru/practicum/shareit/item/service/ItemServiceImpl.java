@@ -14,8 +14,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,9 +26,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final UserService userService;
     private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
 
@@ -40,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
         validateUser(userId);
 
         Item item = itemMapper.toItem(itemDto);
-        item.setOwner(userMapper.toUser(userService.get(userId)));
+        item.setOwner(userRepository.findById(userId).get());
         item = itemRepository.save(item);
         return itemMapper.toItemDto(item);
     }
