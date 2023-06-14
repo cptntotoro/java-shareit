@@ -13,9 +13,9 @@ import java.util.Map;
 public class ControllerExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
-    @ExceptionHandler(UserDtoIntegrityException.class)
+    @ExceptionHandler(DtoIntegrityException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public Map<String, String> validationException(UserDtoIntegrityException exception) {
+    public Map<String, String> validationException(DtoIntegrityException exception) {
         log.error(exception.getMessage());
         return Map.of("error", exception.getMessage());
     }
@@ -27,30 +27,37 @@ public class ControllerExceptionHandler {
         return Map.of("error", exception.getMessage());
     }
 
-    @ExceptionHandler(UserDoesNotExistException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public Map<String, String> validationException(UserDoesNotExistException exception) {
-        log.error(exception.getMessage());
-        return Map.of("error", exception.getMessage());
-    }
-
-    @ExceptionHandler(ItemDtoIntegrityException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public Map<String, String> validationException(ItemDtoIntegrityException exception) {
-        log.error(exception.getMessage());
-        return Map.of("error", exception.getMessage());
-    }
-
-    @ExceptionHandler(ItemDoesNotExistException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public Map<String, String> validationException(ItemDoesNotExistException exception) {
-        log.error(exception.getMessage());
-        return Map.of("error", exception.getMessage());
-    }
-
     @ExceptionHandler(ItemAccessException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public Map<String, String> validationException(ItemAccessException exception) {
+        log.error(exception.getMessage());
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalItemBookingException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public Map<String, String> validationException(IllegalItemBookingException exception) {
+        log.error(exception.getMessage());
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(UnavailableItemBookingException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Map<String, String> validationException(UnavailableItemBookingException exception) {
+        log.error(exception.getMessage());
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(ObjectNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public Map<String, String> validationException(ObjectNotFoundException exception) {
+        log.error(exception.getMessage());
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalSearchModeException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Map<String, String> validationException(IllegalSearchModeException exception) {
         log.error(exception.getMessage());
         return Map.of("error", exception.getMessage());
     }

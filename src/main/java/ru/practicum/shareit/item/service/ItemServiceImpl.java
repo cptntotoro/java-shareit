@@ -1,50 +1,55 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.exceptions.*;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
-    private Map<Integer, Item> items = new HashMap<>();
-    private int idGenerator = 0;
+    private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto add(Integer userId, ItemDto itemDto) {
         validateItemDto(itemDto);
-
-        if (!userWithIdExists(userId)) {
-            throw new UserDoesNotExistException("Failed to create item. User with id " + userId + " was not found.");
-        }
+        validateUser(userId);
 
         Item item = itemMapper.toItem(itemDto);
-        item.setOwner(userMapper.toUser(userService.get(userId)));
-        item.setId(++idGenerator);
-        items.put(item.getId(), item);
+        item.setOwner(userRepository.findById(userId).get());
+        item = itemRepository.save(item);
         return itemMapper.toItemDto(item);
     }
 
     @Override
     public ItemDto update(Integer itemId, Integer userId, ItemDto itemDto) {
-        if (itemId.equals(itemDto.getId()) && itemWithIdExists(itemId)) {
-            if (!userWithIdExists(userId)) {
-                throw new UserDoesNotExistException("Failed to create item. User with id " + userId + " was not found.");
-            }
+        validateItem(itemId);
+
+        if (itemId.equals(itemDto.getId())) {
+            validateUser(userId);
         }
 
-        Item item = items.get(itemId);
+        Item item = itemRepository.findById(itemId).get();
 
         if (!Objects.equals(userId, item.getOwner().getId())) {
             throw new ItemAccessException("Failed to update item. Only item owners are allowed to update items.");
@@ -59,25 +64,66 @@ public class ItemServiceImpl implements ItemService {
         }
 
         if (itemDto.getAvailable() != null) {
-            item.setIsAvailable(itemDto.getAvailable());
+            item.setAvailable(itemDto.getAvailable());
         }
 
-        items.put(item.getId(), item);
-        return itemMapper.toItemDto((items.get(itemId)));
+        item = itemRepository.save(item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public ItemDto get(Integer itemId) {
-        if (!itemWithIdExists(itemId)) {
-            throw new ItemDoesNotExistException("Failed to get item. Item id is not found.");
+    public ItemDtoExtended get(Integer itemId, Integer userId) {
+        validateItem(itemId);
+
+        Sort sort = Sort.by("start").descending();
+
+        Item item = itemRepository.findById(itemId).get();
+        ItemDto itemDto = itemMapper.toItemDto(item);
+
+        List<CommentOutputDto> itemComments = commentRepository.findByItemId(itemId).stream()
+                .map(commentMapper::toCommentOutputDto).collect(Collectors.toList());
+
+        ItemDtoExtended itemDtoExtended = new ItemDtoExtended(itemDto, itemComments);
+
+        if (Objects.equals(userId, item.getOwner().getId())) {
+            List<Booking> last = bookingRepository.findByItemIdAndStartIsBeforeAndStatusNot(itemId, LocalDateTime.now(), BookingStatus.REJECTED, sort);
+            if (!last.isEmpty()) {
+                Booking lastBooking = last.get(0);
+                itemDtoExtended.setLastBooking(bookingMapper.toBookingDtoShortOutput(lastBooking));
+            }
+
+            List<Booking> next = bookingRepository.findByItemIdAndStartIsAfterAndStatusNot(itemId, LocalDateTime.now(), BookingStatus.REJECTED, sort.ascending());
+            if (!next.isEmpty()) {
+                Booking nextBooking = next.get(0);
+                itemDtoExtended.setNextBooking(bookingMapper.toBookingDtoShortOutput(nextBooking));
+            }
         }
-        return itemMapper.toItemDto(items.get(itemId));
+        return itemDtoExtended;
     }
 
     @Override
-    public List<ItemDto> getAll(Integer userId) {
-        List<Item> userItems = items.values().stream().filter(item -> Objects.equals(item.getOwner().getId(), userId)).collect(Collectors.toList());
-        return userItems.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
+    public List<ItemDtoExtended> getAll(Integer userId) {
+        Sort sort = Sort.by("start").descending();
+
+        List<ItemDtoExtended> userItems = itemRepository.findByOwnerId(userId).stream()
+                .map(itemMapper::toItemDto)
+                .map(itemDto -> new ItemDtoExtended(itemDto, null))
+                .map(item -> {
+            List<Booking> last = bookingRepository.findByItemIdAndStartIsBeforeAndStatusNot(item.getId(), LocalDateTime.now(), BookingStatus.REJECTED, sort);
+            if (!last.isEmpty()) {
+                Booking lastBooking = last.get(0);
+                item.setLastBooking(bookingMapper.toBookingDtoShortOutput(lastBooking));
+            }
+
+            List<Booking> next = bookingRepository.findByItemIdAndStartIsAfterAndStatusNot(item.getId(), LocalDateTime.now(), BookingStatus.REJECTED, sort.ascending());
+            if (!next.isEmpty()) {
+                Booking nextBooking = next.get(0);
+                item.setNextBooking(bookingMapper.toBookingDtoShortOutput(nextBooking));
+            }
+            return item;
+        }).collect(Collectors.toList());
+
+        return userItems;
     }
 
     @Override
@@ -86,25 +132,73 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
         String searchQuery = text.toLowerCase();
-        return items.values().stream()
-                .filter(Item::getIsAvailable)
+        return itemRepository.findAll().stream()
+                .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(searchQuery)
                         || item.getDescription().toLowerCase().contains(searchQuery))
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public CommentOutputDto addComment(Integer itemId, Integer userId, Comment commentInput) {
+        validateUser(userId);
+        validateItem(itemId);
+
+        Optional<Item> optionalItem = itemRepository.findById(itemId);
+        if ((optionalItem.isEmpty())) {
+            throw new ObjectNotFoundException("Booking with id = " + itemId + " was not found.");
+        }
+        Item item = optionalItem.get();
+
+        Sort sort = Sort.by("start").descending();
+
+        List<Booking> bookings = bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), sort);
+        if (bookings.isEmpty()) {
+            throw new UnavailableItemBookingException("Failed to add comment. No finished bookings found.");
+        }
+
+        if (item.getOwner().getId().equals(userId)) {
+            throw new IllegalItemBookingException("Failed to add comment. Item owners are not allowed to comment on the booking of their items.");
+        }
+
+        commentInput.setItem(item);
+        commentInput.setAuthor(userRepository.findById(userId).get());
+
+        Comment comment = commentRepository.save(commentInput);
+
+        return commentMapper.toCommentOutputDto(comment);
+    }
+
+    @Override
+    public ItemDtoExtended getItemWithComments(Integer itemId, Integer userId) {
+        validateUser(userId);
+        validateItem(itemId);
+
+        ItemDto itemDto = get(itemId, userId);
+
+        List<CommentOutputDto> itemComments = commentRepository.findByItemId(itemId).stream()
+                .map(commentMapper::toCommentOutputDto).collect(Collectors.toList());
+
+        return new ItemDtoExtended(itemDto, itemComments);
+    }
+
     private void validateItemDto(ItemDto itemDto) {
-        if (itemDto.getAvailable() == null || itemDto.getName() == null || itemDto.getName().isEmpty() || itemDto.getDescription() == null) {
-            throw new ItemDtoIntegrityException("Failed to process request. Item's name, description or isAvailable status must not be null.");
+        if (itemDto.getAvailable() == null || itemDto.getName() == null || itemDto.getName().isEmpty()
+                || itemDto.getDescription() == null) {
+            throw new DtoIntegrityException("Failed to process request. Item's name, description or isAvailable status must not be null.");
         }
     }
 
-    private boolean userWithIdExists(Integer userId) {
-        return userService.getAll().stream().anyMatch(userDto -> userDto.getId().equals(userId));
+    private void validateUser(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ObjectNotFoundException("Failed to process request. User with id = " + userId + " doesn't exist.");
+        }
     }
 
-    private boolean itemWithIdExists(Integer itemId) {
-        return items.values().stream().anyMatch(item -> item.getId().equals(itemId));
+    private void validateItem(Integer itemId) {
+        if (!itemRepository.existsById(itemId)) {
+            throw new ObjectNotFoundException("Failed to process request. Item with id = " + itemId + " doesn't exist.");
+        }
     }
 }

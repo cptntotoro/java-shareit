@@ -2,20 +2,37 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "bookings")
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
-    private int id;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(name = "start_time")
+    private LocalDateTime start;
+
+    @Column(name = "end_time")
+    private LocalDateTime end;
+
+    @ManyToOne
+    @JoinColumn(name = "item_id")
     private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "booker_id")
     private User booker;
-    private BookingStatus status; // Владелец вещи должен подтвердить бронирование
-    // После того как вещь возвращена, у пользователя, который её арендовал, должна быть возможность оставить отзыв.
-    //  В отзыве можно поблагодарить владельца вещи и подтвердить, что задача выполнена.
+
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
 }
