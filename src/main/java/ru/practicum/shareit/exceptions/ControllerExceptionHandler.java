@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
+@Generated
 @RestControllerAdvice
 public class ControllerExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);

@@ -10,10 +10,6 @@ import ru.practicum.shareit.item.model.Comment;
 public interface CommentMapper {
     CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
 
-    CommentDto toCommentDto(Comment comment);
-
-    Comment toComment(CommentDto commentDto);
-
     @Mapping(target = "authorName", source = "comment.author.name")
     CommentOutputDto toCommentOutputDto(Comment comment);
 }

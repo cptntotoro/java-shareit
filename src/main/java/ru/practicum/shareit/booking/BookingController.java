@@ -39,13 +39,17 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<BookingDtoOutput>> getAll(@RequestParam(name = "state", defaultValue = "ALL", required = false) String searchMode,
+                                                         @RequestParam(name = "from", required = false) Integer from,
+                                                         @RequestParam(name = "size", required = false) Integer size,
                                                          @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId) {
-        return ResponseEntity.ok().body(bookingService.getAll(searchMode, userId));
+        return ResponseEntity.ok().body(bookingService.getAll(searchMode, userId, from, size));
     }
 
     @GetMapping("/owner")
     public ResponseEntity<List<BookingDtoOutput>> getAllByOwner(@RequestParam(name = "state", defaultValue = "ALL", required = false) String searchMode,
-                                                   @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId) {
-        return ResponseEntity.ok().body(bookingService.getAllByOwner(searchMode, userId));
+                                                                @RequestParam(name = "from", required = false) Integer from,
+                                                                @RequestParam(name = "size", required = false) Integer size,
+                                                                @RequestHeader("X-Sharer-User-Id") @NotNull Integer userId) {
+        return ResponseEntity.ok().body(bookingService.getAllByOwner(searchMode, userId, from, size));
     }
 }
