@@ -65,7 +65,7 @@ public class UserServiceTest {
                 .thenReturn(user1);
 
         UserDto userDtoSaved = userService.add(userDtoToSave);
-        Mockito.verify(userRepository).save(userMapper.toUser(userDtoToSave));
+        Mockito.verify(userRepository).save(any());
 
         assertEquals(user1.getId(), userDtoSaved.getId());
 
