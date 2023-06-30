@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.UserEmailAlreadyExistsException;
 import ru.practicum.shareit.exceptions.DtoIntegrityException;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
         if (userDto.getEmail() != null) {
             if (!Objects.equals(userDto.getEmail(), user.getEmail()) && userWithEmailExists(userDto.getEmail())) {
-                throw new UserEmailAlreadyExistsException("Failed to update user. User with email " + userDto.getEmail() + " doesn't exist.");
+                throw new UserEmailAlreadyExistsException("Failed to update user. User with email " + userDto.getEmail() + " already exists.");
             }
             user.setEmail(userDto.getEmail());
         }

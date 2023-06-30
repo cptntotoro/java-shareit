@@ -11,5 +11,9 @@ public interface ItemMapper {
 
     ItemDto toItemDto(Item item);
 
+    ItemDtoWithRequestId toItemDtoWithRequestId(Item item);
+
     Item toItem(ItemDto itemDto);
+
+    Item toItem(ItemDtoWithRequestId itemDtoWithRequestId);
 }
