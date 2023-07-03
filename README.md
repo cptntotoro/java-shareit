@@ -5,7 +5,7 @@ Tech stack: Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito
 
 The application consists of three microservices: Gateway for request validation, Server for business logic and a database. <br> Each microservice runs in its own Docker container.
 
-Key features: 
+### Key features: 
 - User management
 - Item management
 - Item request management
