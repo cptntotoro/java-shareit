@@ -1,5 +1,5 @@
 # ShareIt - a microservice application for item renting
-Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, MapStruct, Lombok
+Tech stack: Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, MapStruct, Lombok
 
 ## About
 
