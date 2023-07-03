@@ -14,4 +14,4 @@ Key features:
 
 ## How to use 
 
-To see request and response examples, please refer to [this Postman test collection]([url](https://github.com/yandex-praktikum/java-shareit/blob/add-docker/postman/sprint.json)https://github.com/yandex-praktikum/java-shareit/blob/add-docker/postman/sprint.json)
+To see request and response examples, please refer to [this Postman test collection](https://github.com/yandex-praktikum/java-shareit/blob/add-docker/postman/sprint.json)
