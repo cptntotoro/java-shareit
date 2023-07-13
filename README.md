@@ -1,17 +1,15 @@
-# ShareIt - a microservice application for item renting
-Tech stack: Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, MapStruct, Lombok
+# ShareIt - микросервисное приложение для аренды вещей
+Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, MapStruct, Lombok
 
-## About
+## О проекте
+Приложение содержит три микросервиса: Gateway для валидации запросов, Server, содержащий бизнес-логику, и базу данных. Каждый микросервис запускается в собственном Docker контейнере.
 
-The application consists of three microservices: Gateway for request validation, Server for business logic and a database. Each microservice runs in its own Docker container.
+### Основная функциональность: 
+- Регистрация, обновление и получение пользователей
+- Добавление, обновление, получение, а также поиск по предметам 
+- Управление заявками на аренду вещей 
+- Обработка запросов на аренду желаемых вещей
+- Комментирование успешно завершённой аренды
 
-### Key features: 
-- User management
-- Item management
-- Item request management
-- Booking management
-- Item reviewing
-
-## How to use 
-
-To see request and response examples, please refer to [this Postman test collection](https://github.com/yandex-praktikum/java-shareit/blob/add-docker/postman/sprint.json)
+## Как использовать:
+Ознакомиться с примерами использования можно в [этой коллекции тестов Postman](https://github.com/yandex-praktikum/java-shareit/blob/add-docker/postman/sprint.json)
