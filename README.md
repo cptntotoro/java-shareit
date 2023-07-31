@@ -25,7 +25,6 @@ Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, Map
 - POST /users - добавление пользователя
 - PATCH /users/{userId} - обновление данных пользователя
 - GET /users/{userId} - получение данных пользователя
-- DELETE /users/{userId} - удаление пользователя
 - GET /users/ - получение списка пользователей
 <br>
 
@@ -33,17 +32,21 @@ Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, Map
 - PATCH /items/{itemId} - обновление данных вещи
 - GET /items/{itemId} - получение данных вещи
 - GET /items/ - получение списка вещей
+- GET /items/search - поиск вещей по тексту в параметре text
+- POST /items/{itemId}/comment - добавление отзыва к вещи после завершенного бронирования
 <br>
 
-- POST /bookings - добавление бронирования
+- POST /requests - добавление запроса на бронирование
+- GET /requests/{requestId} - получение бронирования
+- GET /items/all - получение списка бронирований
+- GET /items - получение списка бронирований по id пользователя в заголовке запроса
+<br>
+
 - PATCH /bookings/{bookingId} - обновление данных бронирования
+- PATCH /bookings/{bookingId} - одобрение или отклонение бронирования по параметру approved
 - GET /bookings/{bookingId} - получение данных о бронировании
-- GET /bookings/ - получение списка бронирований
-<br>
-
-- POST /items/{itemId}/{comment} - добавление отзыва к завершенному бронированию
-- PATCH /bookings/{bookingId} - обновление данных бронирования
-- PATCH /bookings/{bookingId}?approved={approved} - одобрение или отклонение бронирования
+- GET /bookings/ - получение бронирований по фильтрам state, from, size
+- GET /bookings/owner - получение бронирований пользователя по фильтрам state, from, size
 <br>
 
 ## Как использовать:
