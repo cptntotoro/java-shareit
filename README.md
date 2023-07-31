@@ -4,7 +4,7 @@ Java, Spring Boot, Spring JPA, PostgreSQL, REST API, Docker, Mockito, JUnit, Map
 ## О проекте
 Сервис, который позволяет пользователям рассказывать, какими вещами они готовы поделиться, а также находить нужную вещь и брать её в аренду на какое-то время
 
-![](https://https://pictures.s3.yandex.net/resources/352_1690299000.png)
+![](https://pictures.s3.yandex.net/resources/326_1687267424.png)
 
 Приложение содержит три микросервиса: 
 - Gateway для валидации запросов,
